@@ -1,5 +1,5 @@
 {
-	"name": "tinydi",
+	"name": "@drepkovsky/tinydi",
 	"version": "1.0.0",
 	"description": "A lightweight, type-safe dependency injection container for TypeScript",
 	"main": "./dist/index.js",
@@ -19,11 +19,11 @@
 		"dev": "tsup --watch",
 		"prepublishOnly": "npm run lint && npm run build",
 		"typecheck": "tsc --noEmit",
-		"format": "biome format . --write",
-		"lint": "biome lint .",
-		"lint:fix": "biome lint . --apply",
-		"check": "biome check .",
-		"check:fix": "biome check . --apply"
+		"format": "biome format ./src --write",
+		"lint": "biome lint ./src",
+		"lint:fix": "biome lint ./src --write",
+		"check": "biome check ./src",
+		"check:fix": "biome check ./src --write"
 	},
 	"keywords": [
 		"dependency-injection",

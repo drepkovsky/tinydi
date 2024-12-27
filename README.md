@@ -14,7 +14,7 @@ A lightweight, type-safe dependency injection container for TypeScript with expl
 ## Installation
 
 ```bash
-npm install tinydi
+npm install @drepkovsky/tinydi
 ```
 
 ## Quick Start
@@ -50,7 +50,7 @@ Create a single container instance for your application:
 
 ```typescript
 // ioc.ts
-import { createContainer } from 'tinydi';
+import { createContainer } from '@drepkovsky/tinydi';
 export const container = createContainer();
 ```
 

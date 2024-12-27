@@ -124,7 +124,7 @@ async function runExample() {
 	console.log(services.logger === logger2); // true
 
 	// 4. Instance clearing
-	container._clearInstance("logger");
+	container.clearInstance("logger");
 	const { logger: logger3 } = container.resolve([loggerFactory]);
 	console.log(services.logger === logger3); // false
 
