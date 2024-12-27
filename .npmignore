@@ -1,0 +1,12 @@
+.git
+.gitignore
+node_modules
+src
+tsconfig.json
+tsup.config.ts
+.npmignore
+.github
+coverage
+tests
+*.log
+.DS_Store
