@@ -1,4 +1,4 @@
-type SyncFactory<
+export type SyncFactory<
 	T,
 	C extends Container = Container,
 	N extends string = string,
@@ -7,7 +7,7 @@ type SyncFactory<
 	resolve: (container: C) => T;
 };
 
-type AsyncFactory<
+export type AsyncFactory<
 	T,
 	C extends Container = Container,
 	N extends string = string,
@@ -16,13 +16,15 @@ type AsyncFactory<
 	resolve: (container: C) => Promise<T>;
 };
 
-type Factory<T, C extends Container = Container, N extends string = string> =
-	| SyncFactory<T, C, N>
-	| AsyncFactory<T, C, N>;
-type FactoryValue = unknown;
+export type Factory<
+	T,
+	C extends Container = Container,
+	N extends string = string,
+> = SyncFactory<T, C, N> | AsyncFactory<T, C, N>;
+export type FactoryValue = unknown;
 
 // Types for resolve results
-type SyncResolveResult<
+export type SyncResolveResult<
 	C extends Container,
 	T extends SyncFactory<unknown, C, string>[],
 > = {
