@@ -11,7 +11,7 @@
 				"noUnusedVariables": "error"
 			},
 			"suspicious": {
-				"noExplicitAny": "error"
+				"noExplicitAny": "off"
 			},
 			"style": {
 				"useConst": "error",

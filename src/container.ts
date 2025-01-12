@@ -1,7 +1,7 @@
 export type SyncFactory<
 	T,
-	C extends Container = Container,
 	N extends string = string,
+	C extends Container = Container,
 > = {
 	name: N;
 	resolve: (container: C) => T;
@@ -9,8 +9,8 @@ export type SyncFactory<
 
 export type AsyncFactory<
 	T,
-	C extends Container = Container,
 	N extends string = string,
+	C extends Container = Container,
 > = {
 	name: N;
 	resolve: (container: C) => Promise<T>;
@@ -18,39 +18,32 @@ export type AsyncFactory<
 
 export type Factory<
 	T,
-	C extends Container = Container,
 	N extends string = string,
-> = SyncFactory<T, C, N> | AsyncFactory<T, C, N>;
+	C extends Container = Container,
+> = SyncFactory<T, N, C> | AsyncFactory<T, N, C>;
 export type FactoryValue = unknown;
 
 // Types for resolve results
-export type SyncResolveResult<
-	C extends Container,
-	T extends SyncFactory<unknown, C, string>[],
-> = {
+export type SyncResolveResult<T extends SyncFactory<unknown, string>[]> = {
 	[F in T[number] as F["name"]]: ReturnType<F["resolve"]>;
 };
 
-type AsyncResolveResult<
-	C extends Container,
-	T extends Factory<unknown, C, string>[],
-> = {
-	[F in T[number] as F["name"]]: F extends AsyncFactory<infer R, C, string>
+type AsyncResolveResult<T extends Factory<unknown, string>[]> = {
+	[F in T[number] as F["name"]]: F extends AsyncFactory<infer R, string>
 		? R
 		: ReturnType<F["resolve"]>;
 };
 
 export class Container {
-	protected factories: Map<string, Factory<FactoryValue, typeof this>> =
-		new Map();
+	protected factories: Map<string, Factory<FactoryValue, any>> = new Map();
 	protected instances: Map<string, Promise<FactoryValue> | FactoryValue> =
 		new Map();
 
 	public register<T, N extends string>(
 		name: N,
-		resolver: (container: typeof this) => T,
-	): SyncFactory<T, typeof this, N> {
-		const factory: SyncFactory<T, typeof this, N> = {
+		resolver: (container: any) => T,
+	): SyncFactory<T, N, any> {
+		const factory: SyncFactory<T, N, any> = {
 			name,
 			resolve: resolver,
 		};
@@ -60,9 +53,9 @@ export class Container {
 
 	public registerAsync<T, N extends string>(
 		name: N,
-		resolver: (container: typeof this) => Promise<T>,
-	): AsyncFactory<T, typeof this, N> {
-		const factory: AsyncFactory<T, typeof this, N> = {
+		resolver: (container: any) => Promise<T>,
+	): AsyncFactory<T, N, any> {
+		const factory: AsyncFactory<T, N, any> = {
 			name,
 			resolve: resolver,
 		};
@@ -70,13 +63,9 @@ export class Container {
 		return factory;
 	}
 
-	protected resolveFactory<T>(factory: SyncFactory<T, typeof this>): T;
-	protected resolveFactory<T>(
-		factory: AsyncFactory<T, typeof this>,
-	): Promise<T>;
-	protected resolveFactory<T>(
-		factory: Factory<T, typeof this>,
-	): T | Promise<T> {
+	protected resolveFactory<T>(factory: SyncFactory<T, any>): T;
+	protected resolveFactory<T>(factory: AsyncFactory<T, any>): Promise<T>;
+	protected resolveFactory<T>(factory: Factory<T, any>): T | Promise<T> {
 		const existingInstance = this.instances.get(factory.name);
 		if (existingInstance !== undefined) {
 			return existingInstance as T | Promise<T>;
@@ -87,9 +76,9 @@ export class Container {
 		return result;
 	}
 
-	public resolve<T extends SyncFactory<unknown, typeof this>[]>(
+	public resolve<T extends SyncFactory<unknown, any>[]>(
 		factories: [...T],
-	): SyncResolveResult<typeof this, T> {
+	): SyncResolveResult<T> {
 		const result = {} as Record<string, FactoryValue>;
 
 		for (const factory of factories) {
@@ -98,12 +87,12 @@ export class Container {
 			);
 		}
 
-		return result as SyncResolveResult<typeof this, T>;
+		return result as SyncResolveResult<T>;
 	}
 
-	public async resolveAsync<T extends Factory<unknown, typeof this>[]>(
+	public async resolveAsync<T extends Factory<unknown, any>[]>(
 		factories: [...T],
-	): Promise<AsyncResolveResult<typeof this, T>> {
+	): Promise<AsyncResolveResult<T>> {
 		const result = {} as Record<string, FactoryValue>;
 		const promises: Promise<void>[] = [];
 
@@ -121,7 +110,7 @@ export class Container {
 		}
 
 		await Promise.all(promises);
-		return result as AsyncResolveResult<typeof this, T>;
+		return result as AsyncResolveResult<T>;
 	}
 
 	public clearInstance(name: string): void {
