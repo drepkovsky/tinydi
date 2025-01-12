@@ -14,12 +14,12 @@ type Factory<T, C extends Container = Container, N extends string = string> =
 type FactoryValue = unknown;
 
 // Types for resolve results
-type SyncResolveResult<T extends SyncFactory<unknown,any,  string>[]> = {
+type SyncResolveResult<T extends SyncFactory<unknown,Container,  string>[]> = {
 	[F in T[number] as F["name"]]: ReturnType<F["resolve"]>;
 };
 
-type AsyncResolveResult<T extends Factory<unknown, any, string>[]> = {
-	[F in T[number] as F["name"]]: F extends AsyncFactory<infer R, any, string>
+type AsyncResolveResult<T extends Factory<unknown, Container, string>[]> = {
+	[F in T[number] as F["name"]]: F extends AsyncFactory<infer R, Container, string>
 		? R
 		: ReturnType<F["resolve"]>;
 };
