@@ -1,16 +1,16 @@
-type SyncFactory<T, N extends string = string> = {
+type SyncFactory<T, N extends string = string, C extends Container = Container> = {
 	name: N;
-	resolve: (container: Container) => T;
+	resolve: (container: C) => T;
 };
 
-type AsyncFactory<T, N extends string = string> = {
+type AsyncFactory<T, N extends string = string, C extends Container = Container> = {
 	name: N;
-	resolve: (container: Container) => Promise<T>;
+	resolve: (container: C) => Promise<T>;
 };
 
-type Factory<T, N extends string = string> =
-	| SyncFactory<T, N>
-	| AsyncFactory<T, N>;
+type Factory<T, N extends string = string, C extends Container = Container> =
+	| SyncFactory<T, N, C>
+	| AsyncFactory<T, N, C>;
 type FactoryValue = unknown;
 
 // Types for resolve results
@@ -31,25 +31,25 @@ export class Container {
 
 	public register<T, N extends string>(
 		name: N,
-		resolver: (container: Container) => T,
-	): SyncFactory<T, N> {
-		const factory: SyncFactory<T, N> = {
+		resolver: (container: typeof this) => T,
+	): SyncFactory<T, N, typeof this> {
+		const factory: SyncFactory<T, N, typeof this> = {
 			name,
 			resolve: resolver,
 		};
-		this.factories.set(name, factory as Factory<FactoryValue>);
+		this.factories.set(name, factory as unknown as Factory<FactoryValue>);
 		return factory;
 	}
 
 	public registerAsync<T, N extends string>(
 		name: N,
-		resolver: (container: Container) => Promise<T>,
-	): AsyncFactory<T, N> {
-		const factory: AsyncFactory<T, N> = {
+		resolver: (container: typeof this) => Promise<T>,
+	): AsyncFactory<T, N, typeof this> {
+		const factory: AsyncFactory<T, N, typeof this> = {
 			name,
 			resolve: resolver,
 		};
-		this.factories.set(name, factory as Factory<FactoryValue>);
+		this.factories.set(name, factory as unknown as Factory<FactoryValue>);
 		return factory;
 	}
 
