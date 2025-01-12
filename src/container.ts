@@ -25,8 +25,8 @@ type AsyncResolveResult<T extends Factory<unknown, string>[]> = {
 };
 
 export class Container {
-	private factories: Map<string, Factory<FactoryValue>> = new Map();
-	private instances: Map<string, Promise<FactoryValue> | FactoryValue> =
+	protected factories: Map<string, Factory<FactoryValue>> = new Map();
+	protected instances: Map<string, Promise<FactoryValue> | FactoryValue> =
 		new Map();
 
 	public register<T, N extends string>(
@@ -53,9 +53,9 @@ export class Container {
 		return factory;
 	}
 
-	private resolveFactory<T>(factory: SyncFactory<T>): T;
-	private resolveFactory<T>(factory: AsyncFactory<T>): Promise<T>;
-	private resolveFactory<T>(factory: Factory<T>): T | Promise<T> {
+	protected resolveFactory<T>(factory: SyncFactory<T>): T;
+	protected resolveFactory<T>(factory: AsyncFactory<T>): Promise<T>;
+	protected resolveFactory<T>(factory: Factory<T>): T | Promise<T> {
 		const existingInstance = this.instances.get(factory.name);
 		if (existingInstance !== undefined) {
 			return existingInstance as T | Promise<T>;
