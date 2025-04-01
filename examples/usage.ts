@@ -104,8 +104,15 @@ const userServiceFactory = container.registerAsync(
 // Example showing all use cases
 async function runExample() {
 	// 1. Sync resolution
-	const syncResolved = container.resolve([configFactory, loggerFactory]);
+	const syncResolved = container.resolve([
+		configFactory,
+		loggerFactory,
+		apiClientFactory,
+	]);
 	syncResolved.logger.log("Configuration loaded"); // Direct access to sync services
+	// we need to await the apiClient because it's returnes as a Promise<ApiClient>
+	const awaitedAPiClient = await syncResolved.apiClient;
+	await awaitedAPiClient.fetch("/test");
 
 	// 2. Async resolution (automatically awaits all async dependencies)
 	const services = await container.resolveAsync([
@@ -140,6 +147,43 @@ async function runExample() {
 	// Service will automatically use our mock
 	const { userService } = await container.resolveAsync([userServiceFactory]);
 	await userService.getUser("test-123");
+
+	// 6. Using reference feature
+	// Example of using references to resolve factories by name instead of factory object
+
+	// Type-safe references with generic type parameter or without
+	const configRef = container.reference<typeof configFactory>("config");
+	const loggerRef = container.reference("logger");
+	const typeSafeLoggerRef = container.reference<typeof loggerFactory>("logger");
+
+	// Can mix factory objects and references in the same resolve call
+	const servicesWithRef = container.resolve([configRef, loggerFactory]);
+	console.log("Logger from mixed reference/factory:", servicesWithRef.logger);
+
+	// Can use references alone
+	const servicesFromRefs = container.resolve([configRef, loggerRef]);
+	// @ts-expect-error - logger is unknown because we don't have type-safety on the reference
+	servicesFromRefs.logger.log("Services resolved only by reference names");
+
+	// Works with async factories too
+	const apiClientRef =
+		container.reference<typeof apiClientFactory>("apiClient");
+	const userServiceRef =
+		container.reference<typeof userServiceFactory>("userService");
+
+	// Mix async and sync references
+	const asyncServicesWithRefs = await container.resolveAsync([
+		typeSafeLoggerRef,
+		apiClientRef,
+		userServiceRef,
+	]);
+
+	asyncServicesWithRefs.logger.log("Using references for async resolution");
+	await asyncServicesWithRefs.userService.getUser("via-reference");
+
+	// References work with typings - these should all be properly typed
+	const user = await asyncServicesWithRefs.userService.getUser("typed-example");
+	console.log(`User ${user.name} with ID ${user.id} fetched via reference`);
 }
 
 // Run the example
