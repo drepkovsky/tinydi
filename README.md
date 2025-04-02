@@ -220,14 +220,25 @@ class CustomContainer extends Container {
   }
   
   // Add shortcuts for common patterns
-  registerRepository<T>(entityName: string, implementation: new () => T) {
-    return this.register(`${entityName}Repository`, () => new implementation());
+  registerRepository<TImp, TName extends string>(entityName: TName, implementation: new () => TImp) {
+    return this.register(`${entityName}Repository` as const, () => new implementation());
   }
 }
 
 // Create and use your custom container
 const customContainer = new CustomContainer();
 export { customContainer as container };
+
+// Register repositories
+const userRepositoryFactory = customContainer.registerRepository('user', UserRepository);
+const postRepositoryFactory = customContainer.registerRepository('post', PostRepository);
+
+// Resolve repositories
+// userRepository and postRepository are immediately available and typed properly
+const { userRepository, postRepository } = await customContainer.resolveAsync([
+    userRepositoryFactory,
+    postRepositoryFactory
+]);
 ```
 
 ## Best Practices
