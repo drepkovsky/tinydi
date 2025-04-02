@@ -207,7 +207,3 @@ export class Container {
 		this.instances.clear();
 	}
 }
-
-export const createContainer = (): Container => {
-	return new Container();
-};

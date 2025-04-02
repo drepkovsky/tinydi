@@ -1,10 +1,10 @@
 # tinydi
 
-A lightweight, type-safe dependency injection container for TypeScript with explicit sync/async handling.
+A 967B lightweight, type-safe dependency injection container for TypeScript with explicit sync/async handling.
 
 ## Features
 
-- 🚀 Lightweight and simple API
+- 🚀 967B ultra lightweight with no dependencies
 - 🔒 Type-safe dependency resolution
 - ⚡️ Explicit sync/async handling
 - 🦥 Lazy singleton resolution
@@ -22,7 +22,10 @@ npm install @drepkovsky/tinydi
 ## Quick Start
 
 ```typescript
-import { container } from './ioc';
+import { Container } from '@drepkovsky/tinydi';
+
+// Create container instance
+const container = new Container();
 
 // Register sync dependencies
 const loggerFactory = container.register('logger', () => new Logger());
@@ -56,8 +59,8 @@ Create a single container instance for your application:
 
 ```typescript
 // ioc.ts
-import { createContainer } from '@drepkovsky/tinydi';
-export const container = createContainer();
+import { Container } from '@drepkovsky/tinydi';
+export const container = new Container();
 ```
 
 ## Registration
@@ -300,6 +303,28 @@ const client = await apiClient;
 #### Instance Management
 - `clearInstance(name: string): void`
 - `clearAllInstances(): void`
+
+## Migration to 2.0.0
+
+Version 2.0.0 introduces a breaking change in how the container is created. The `createContainer` function has been removed in favor of direct `Container` instantiation:
+
+```typescript
+// Before (v1.x)
+import { createContainer } from '@drepkovsky/tinydi';
+const container = createContainer();
+
+// After (v2.x)
+import { Container } from '@drepkovsky/tinydi';
+const container = new Container();
+```
+
+This change was made to:
+- Encourage extending the `Container` class for custom functionality
+- Make it more explicit that you can create your own container implementations
+- Better align with object-oriented principles
+- Make customization patterns more discoverable through IDE suggestions
+
+By using direct class instantiation, it's more apparent that you can extend the container with your own methods and functionality, as shown in the [Extending the Container](#extending-the-container) section.
 
 ## License
 

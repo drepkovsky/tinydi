@@ -1,4 +1,4 @@
-import { createContainer } from "../src";
+import { Container } from "../src";
 
 // Create a single container instance for the entire application
-export const container = createContainer();
+export const container = new Container();
