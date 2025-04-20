@@ -69,11 +69,11 @@ export class Container {
 	protected instances: Map<string, Promise<FactoryValue> | FactoryValue> =
 		new Map();
 
-	public register<T, N extends string>(
+	public register<T, N extends string, C extends Container = this>(
 		name: N,
-		resolver: (container: any) => T,
-	): SyncFactory<T, N, any> {
-		const factory: SyncFactory<T, N, any> = {
+		resolver: (container: C) => T,
+	): SyncFactory<T, N, C> {
+		const factory: SyncFactory<T, N, C> = {
 			name,
 			resolve: resolver,
 		};
@@ -81,11 +81,11 @@ export class Container {
 		return factory;
 	}
 
-	public registerAsync<T, N extends string>(
+	public registerAsync<T, N extends string, C extends Container = this>(
 		name: N,
-		resolver: (container: any) => Promise<T>,
-	): AsyncFactory<T, N, any> {
-		const factory: AsyncFactory<T, N, any> = {
+		resolver: (container: C) => Promise<T>,
+	): AsyncFactory<T, N, C> {
+		const factory: AsyncFactory<T, N, C> = {
 			name,
 			resolve: resolver,
 		};
