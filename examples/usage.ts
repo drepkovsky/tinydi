@@ -1,4 +1,5 @@
 import { container } from "./ioc";
+import { CustomContainer } from "./ioc";
 
 // Basic services and types
 type Config = {
@@ -164,7 +165,6 @@ async function runExample() {
 	const servicesFromRefs = container.resolve([configRef, loggerRef]);
 	// @ts-expect-error - logger is unknown because we don't have type-safety on the reference
 	servicesFromRefs.logger.log("Services resolved only by reference names");
-
 	// Works with async factories too
 	const apiClientRef =
 		container.reference<typeof apiClientFactory>("apiClient");
