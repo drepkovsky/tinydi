@@ -101,6 +101,11 @@ export class Container {
 	protected resolveFactory<T, C = this>(
 		factory: Factory<T, any, C> | FactoryReference<Factory<T, any, C>>,
 	): T | Promise<T> {
+		if (!factory) {
+			throw new Error(
+				"Attempted to resolve an undefined or null factory. Please check the factories passed to resolve() or resolveAsync().",
+			);
+		}
 		let actualFactory: Factory<T, any, C> = factory as Factory<T, any, C>;
 		// Check if it's a reference and get the actual factory
 		if ("__REF" in factory && factory.__REF) {
