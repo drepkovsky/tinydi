@@ -117,13 +117,26 @@ export class Container {
 			actualFactory = tmp as unknown as Factory<T, any, C>;
 		}
 
-		const existingInstance = this.instances.get(factory.name);
+		const existingInstance = this.instances.get(actualFactory.name);
 		if (existingInstance !== undefined) {
 			return existingInstance as T | Promise<T>;
 		}
 
+		// Call factory's resolve function
 		const result = actualFactory.resolve(this as unknown as C);
-		this.instances.set(actualFactory.name, result);
+
+		// For promises, wrap to handle potential race conditions and re-entrance
+		// Set in cache immediately so concurrent/re-entrant calls get the same promise
+		if (result instanceof Promise) {
+			this.instances.set(actualFactory.name, result);
+			// If the promise rejects, remove from cache to allow retry
+			result.catch(() => {
+				this.instances.delete(actualFactory.name);
+			});
+		} else {
+			this.instances.set(actualFactory.name, result);
+		}
+
 		return result;
 	}
 
