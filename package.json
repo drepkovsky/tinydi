@@ -1,6 +1,6 @@
 {
 	"name": "@drepkovsky/tinydi",
-	"version": "2.2.0",
+	"version": "2.2.1",
 	"description": "A 0.9kb lightweight, type-safe dependency injection container for TypeScript with explicit sync/async handling",
 	"main": "./dist/index.js",
 	"module": "./dist/index.mjs",
