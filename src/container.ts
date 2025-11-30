@@ -175,24 +175,25 @@ export class Container {
 		>
 	> {
 		const result = {} as Record<string, FactoryValue>;
-		const promises: Promise<void>[] = [];
 
-		for (const factory of factories) {
+		// Start all factory resolutions in parallel immediately
+		// This ensures factory.resolve() calls happen concurrently, not sequentially
+		const resolvePromises = factories.map(async (factory) => {
 			const resolved = this.resolveFactory(
 				factory as Factory<unknown, any, any>,
 			);
-			if (resolved instanceof Promise) {
-				promises.push(
-					resolved.then((value) => {
-						result[factory.name] = value;
-					}),
-				);
-			} else {
-				result[factory.name] = resolved;
-			}
+			const value = resolved instanceof Promise ? await resolved : resolved;
+			return { name: factory.name, value };
+		});
+
+		// Wait for all resolutions to complete
+		const results = await Promise.all(resolvePromises);
+
+		// Build result object
+		for (const { name, value } of results) {
+			result[name] = value;
 		}
 
-		await Promise.all(promises);
 		return result as AsyncResolveResult<
 			Extract<
 				T[number],
