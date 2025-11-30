@@ -1,6 +1,6 @@
 {
 	"name": "@drepkovsky/tinydi",
-	"version": "2.1.1",
+	"version": "2.2.0",
 	"description": "A 0.9kb lightweight, type-safe dependency injection container for TypeScript with explicit sync/async handling",
 	"main": "./dist/index.js",
 	"module": "./dist/index.mjs",
@@ -13,7 +13,11 @@
 			"default": "./dist/index.js"
 		}
 	},
-	"files": ["dist", "README.md", "LICENSE"],
+	"files": [
+		"dist",
+		"README.md",
+		"LICENSE"
+	],
 	"scripts": {
 		"build": "tsup",
 		"dev": "tsup --watch",
