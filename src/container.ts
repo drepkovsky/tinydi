@@ -59,6 +59,29 @@ export class Container {
 	protected instances: Map<string, Promise<FactoryValue> | FactoryValue> =
 		new Map();
 
+	// Profiling support
+	protected profilingEnabled = false;
+	protected profileData: Map<string, number> = new Map();
+
+	public enableProfiling(): void {
+		this.profilingEnabled = true;
+		this.profileData.clear();
+	}
+
+	public disableProfiling(): void {
+		this.profilingEnabled = false;
+	}
+
+	public getProfileData(): Array<{ name: string; duration: number }> {
+		return Array.from(this.profileData.entries())
+			.map(([name, duration]) => ({ name, duration }))
+			.sort((a, b) => b.duration - a.duration);
+	}
+
+	public clearProfileData(): void {
+		this.profileData.clear();
+	}
+
 	public register<T, N extends string, C = this>(
 		name: N,
 		resolver: (container: C) => T,
@@ -122,18 +145,42 @@ export class Container {
 			return existingInstance as T | Promise<T>;
 		}
 
+		// Start profiling if enabled
+		const startTime = this.profilingEnabled ? performance.now() : 0;
+
 		// Call factory's resolve function
 		const result = actualFactory.resolve(this as unknown as C);
 
-		// For promises, wrap to handle potential race conditions and re-entrance
-		// Set in cache immediately so concurrent/re-entrant calls get the same promise
+		// For promises, wrap to handle profiling and cache management
 		if (result instanceof Promise) {
 			this.instances.set(actualFactory.name, result);
-			// If the promise rejects, remove from cache to allow retry
-			result.catch(() => {
-				this.instances.delete(actualFactory.name);
-			});
+
+			// Profile async resolution
+			if (this.profilingEnabled) {
+				result.then(
+					() => {
+						const duration = performance.now() - startTime;
+						this.profileData.set(actualFactory.name, duration);
+					},
+					() => {
+						// Still record time even on error
+						const duration = performance.now() - startTime;
+						this.profileData.set(actualFactory.name, duration);
+						this.instances.delete(actualFactory.name);
+					}
+				);
+			} else {
+				// Original error handling without profiling
+				result.catch(() => {
+					this.instances.delete(actualFactory.name);
+				});
+			}
 		} else {
+			// Profile sync resolution
+			if (this.profilingEnabled) {
+				const duration = performance.now() - startTime;
+				this.profileData.set(actualFactory.name, duration);
+			}
 			this.instances.set(actualFactory.name, result);
 		}
 
